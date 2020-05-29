@@ -1,0 +1,88 @@
+#!/usr/bin/python
+# MS Teams
+# madnut 2017, based on Rob's CMK-Slack
+
+import os, sys
+import requests
+import json
+
+
+
+# Probably better to leave the stuff below well alone
+
+headers = {"Content-type": "application/json", "Accept": "text/plain"}
+titleText = "" + os.environ['NOTIFY_NOTIFICATIONTYPE'] + ""
+message = os.environ['NOTIFY_HOSTNAME'] + " "
+plaintext = message
+authorText = ""
+msteams_path = os.environ['NOTIFY_PARAMETER_WEBHOOK']
+proxies =  os.environ['NOTIFY_PARAMETER_PROXIES']
+
+# here lies service actions
+if os.environ['NOTIFY_WHAT'] == 'SERVICE':
+    message += "  " + os.environ['NOTIFY_SERVICEDESC'] + " is "
+    plaintext += os.environ['NOTIFY_SERVICEDESC'] + " - "
+    message += os.environ['NOTIFY_SERVICESTATE'] + " \n\n`"
+    message += os.environ['NOTIFY_SERVICEOUTPUT'] + "` \n\n"
+    message += os.environ['NOTIFY_SERVICEACKCOMMENT']
+    plaintext += os.environ['NOTIFY_SERVICESTATE'] + " - "
+    plaintext += os.environ['NOTIFY_SERVICEOUTPUT']
+    if os.environ['NOTIFY_NOTIFICATIONAUTHOR'] != '':
+      authorText += "Triggered by " + os.environ['NOTIFY_NOTIFICATIONAUTHOR'] + " - " + os.environ['NOTIFY_NOTIFICATIONCOMMENT']  
+    if os.environ['NOTIFY_NOTIFICATIONTYPE'] == 'DOWNTIMESTART':
+      colour = "439FE0"
+    elif os.environ['NOTIFY_NOTIFICATIONTYPE'] == 'DOWNTIMEEND':
+      colour = "33cccc"
+    elif os.environ['NOTIFY_NOTIFICATIONTYPE'] == 'ACKNOWLEDGEMENT':
+      colour = "8f006b"
+      plaintext += " - " + os.environ['NOTIFY_SERVICEACKCOMMENT']
+    elif os.environ['NOTIFY_SERVICESTATE'] ==  'CRITICAL':
+      colour = "a30200"
+    elif os.environ['NOTIFY_SERVICESTATE'] ==  'WARNING':
+      colour = "daa038"
+    elif os.environ['NOTIFY_SERVICESTATE'] ==  'UNKNOWN':
+      colour = "cccccc"
+    elif os.environ['NOTIFY_SERVICESTATE'] ==  'OK':
+      colour = "2eb886"
+    else:
+
+#otherwise, it's a host
+else:
+    message += "is " + os.environ['NOTIFY_HOSTSTATE'] + " "
+    plaintext += "is " + os.environ['NOTIFY_HOSTSTATE'] + " - "
+    message += os.environ['NOTIFY_HOSTACKCOMMENT']
+    if os.environ['NOTIFY_NOTIFICATIONAUTHOR'] != '':
+      authorText += "Triggered by " + os.environ['NOTIFY_NOTIFICATIONAUTHOR'] + " - " + os.environ['NOTIFY_NOTIFICATIONCOMMENT']
+    if os.environ['NOTIFY_NOTIFICATIONTYPE'] == 'DOWNTIMESTART':
+      colour = "439FE0"
+    elif os.environ['NOTIFY_NOTIFICATIONTYPE'] == 'DOWNTIMEEND':
+      colour = "33cccc"
+    elif os.environ['NOTIFY_NOTIFICATIONTYPE'] == 'ACKNOWLEDGEMENT':
+      colour = "8f006b"
+    elif os.environ['NOTIFY_HOSTSTATE'] ==  'DOWN':
+      colour = "a30200"
+    elif os.environ['NOTIFY_HOSTSTATE'] ==  'WARNING':
+      colour = "daa038"
+    elif os.environ['NOTIFY_HOSTSTATE'] ==  'UNKNOWN':
+      colour = "cccccc"
+    elif os.environ['NOTIFY_HOSTSTATE'] ==  'UP':
+      colour = "2eb886"
+    else:
+
+#and this is us flinging off the message
+section = {
+  "title": titleText,
+  "activityTitle":  message,
+  "activitySubtitle": authorText,
+  "markdown": True
+  }
+data = {
+  "@type": "MessageCard",
+  "@context": "http://schema.org/extensions",
+  "summary": plaintext,
+  "sections": [section],
+  "themeColor": colour
+  }
+conn = requests.post(msteams_path, data = json.dumps(data), proxies = proxies)
+print(message)
+print(conn.status_code)
