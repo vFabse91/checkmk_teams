@@ -16,7 +16,10 @@ message = os.environ['NOTIFY_HOSTNAME'] + " "
 plaintext = message
 authorText = ""
 msteams_path = os.environ['NOTIFY_PARAMETER_WEBHOOK']
-proxies =  os.environ['NOTIFY_PARAMETER_PROXIES']
+proxies = {
+           "http"  : "os.environ['NOTIFY_PARAMETER_PROXIES']",
+           "https" : "os.environ['NOTIFY_PARAMETER_PROXIES']"
+          }
 
 # here lies service actions
 if os.environ['NOTIFY_WHAT'] == 'SERVICE':
