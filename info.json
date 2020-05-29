@@ -1,0 +1,13 @@
+{"files": 
+{"notifications": ["msteams"], 
+"web": ["plugins/wato/msteams.py"]}, 
+"version.min_required": "1.6.0p11", 
+"name": "msteams",
+"title": "Notification Plugin for Ms Teams", 
+"author": "vFabse91", 
+"download_url": "", 
+"version.usable_until": null, 
+"num_files": 2, 
+"version.packaged": "1.6.0p12", 
+"version": "1.1", 
+"description": "This is a notification plugin for MS Teams\n"}
